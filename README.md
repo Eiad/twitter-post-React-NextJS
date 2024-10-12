@@ -1,52 +1,24 @@
-# Headless Ecommerce App
 
-This is a modern, API-driven headless ecommerce application built with React and functional components.
+# Twitter OAuth App
 
-## Features
+This app uses Flask (backend) and Next.js (frontend) to authenticate via Twitter OAuth 2.0 and post tweets.
 
-- Decoupled architecture with a headless backend
-- React-based frontend using functional components and hooks
-- API-driven data fetching and state management
-- Responsive design for optimal viewing on various devices
-- [Add more key features of your app]
+## Setup
 
-## Prerequisites
-
-- Node.js (version X.X.X or higher)
-- npm or yarn
-- [Any other necessary tools or accounts]
-
-## Installation
-
-1. Clone the repository:
+1. Clone the repo.
+2. Add Twitter API credentials to `.env` in `twitter-backend/`:
    ```
-   git clone https://github.com/your-username/your-repo-name.git
+   TWITTER_CLIENT_ID=your-client-id
+   TWITTER_CLIENT_SECRET=your-client-secret
+   TWITTER_CALLBACK_URL=http://127.0.0.1:5000/callback
+   ```
+3. Run the backend:
+   ```
+   python app.py
+   ```
+4. Run the frontend:
+   ```
+   npm run dev
    ```
 
-2. Navigate to the project directory:
-   ```
-   cd your-repo-name
-   ```
-
-3. Install dependencies:
-   ```
-   npm install
-   ```
-   or
-   ```
-   yarn install
-   ```
-
-## Configuration
-
-1. Create a `.env` file in the root directory
-2. Add the following environment variables:
-   ```
-   REACT_APP_API_URL=your_api_url_here
-   [Add any other necessary environment variables]
-   ```
-
-## Usage
-
-To start the development server:
-
+Now you can log in and post tweets at `http://localhost:3000`.
