@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Twitter as TwitterIcon, Send as SendIcon, Close as CloseIcon } from '@mui/icons-material';
+import TweetGeneratorComponent from '../TweetGeneratorComponent/TweetGeneratorComponent';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(6),
@@ -92,6 +93,10 @@ const PostTweetComponent = () => {
     setOpenSnackbar(false);
   };
 
+  const handleTweetGenerated = (generatedTweet) => {
+    setTweet(generatedTweet);
+  };
+
   return (
     <>
       <StyledPaper elevation={3}>
@@ -111,6 +116,7 @@ const PostTweetComponent = () => {
         </Typography>
         {isLoggedIn ? (
           <Box component="form" onSubmit={handlePostTweet} noValidate sx={{ mt: 1, width: '100%' }}>
+            <TweetGeneratorComponent onTweetGenerated={handleTweetGenerated} />
             <TextField
               fullWidth
               multiline
@@ -199,4 +205,3 @@ const PostTweetComponent = () => {
 };
 
 export default PostTweetComponent;
-
