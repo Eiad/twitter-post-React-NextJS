@@ -13,6 +13,7 @@ import { styled } from '@mui/material/styles';
 import { Twitter as TwitterIcon, Close as CloseIcon } from '@mui/icons-material';
 import TweetGeneratorComponent from '../TweetGeneratorComponent/TweetGeneratorComponent';
 import SchedulerControl from '../SchedulerControl/SchedulerControl';
+import TweetStatusList from '../TweetStatusList/TweetStatusList';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(6),
@@ -20,7 +21,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'center',
   width: '100%',
-  maxWidth: 800,
+  maxWidth: 1200,
   margin: 'auto',
   marginTop: theme.spacing(4),
   marginBottom: theme.spacing(4),
@@ -33,6 +34,7 @@ const PostTweetComponent = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [isSchedulerRunning, setIsSchedulerRunning] = useState(false);
   const [lastTweet, setLastTweet] = useState(null);
+  const [scheduledTweets, setScheduledTweets] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -42,8 +44,7 @@ const PostTweetComponent = () => {
     if (accessToken) {
       localStorage.setItem('access_token', accessToken);
       setIsLoggedIn(true);
-      setMessage('You are now logged in. You can post a tweet.');
-      setOpenSnackbar(true);
+      showMessage('You are now logged in. You can post a tweet.');
     } else {
       const storedToken = localStorage.getItem('access_token');
       if (storedToken) {
@@ -51,6 +52,11 @@ const PostTweetComponent = () => {
       }
     }
   }, []);
+
+  const showMessage = (msg) => {
+    setMessage(msg);
+    setOpenSnackbar(true);
+  };
 
   const handleLogin = () => {
     router.push('/auth');
@@ -66,6 +72,14 @@ const PostTweetComponent = () => {
   const handleSchedulerStatusChange = (isRunning, lastTweetTime) => {
     setIsSchedulerRunning(isRunning);
     setLastTweet(lastTweetTime);
+  };
+
+  const handleTweetsScheduled = (tweets) => {
+    setScheduledTweets(tweets.map((tweet, index) => ({
+      ...tweet,
+      status: 'pending',
+      scheduledTime: new Date(Date.now() + index * 5000).toISOString(),
+    })));
   };
 
   return (
@@ -86,14 +100,24 @@ const PostTweetComponent = () => {
           Schedule Your Tweets
         </Typography>
         {isLoggedIn ? (
-          <Box sx={{ width: '100%' }}>
-            <TweetGeneratorComponent onSchedulerStatusChange={handleSchedulerStatusChange} />
-            <SchedulerControl 
-              isSchedulerRunning={isSchedulerRunning}
-              lastTweet={lastTweet}
-              onSchedulerStatusChange={handleSchedulerStatusChange}
-            />
-          </Box>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div>
+              <TweetGeneratorComponent 
+                onSchedulerStatusChange={handleSchedulerStatusChange}
+                onTweetsScheduled={handleTweetsScheduled}
+                showMessage={showMessage}
+              />
+            </div>
+            <div>
+              <SchedulerControl 
+                isSchedulerRunning={isSchedulerRunning}
+                lastTweet={lastTweet}
+                onSchedulerStatusChange={handleSchedulerStatusChange}
+                showMessage={showMessage}
+              />
+              <TweetStatusList tweets={scheduledTweets} />
+            </div>
+          </div>
         ) : (
           <Button
             onClick={handleLogin}
@@ -111,7 +135,7 @@ const PostTweetComponent = () => {
               },
             }}
           >
-            Log in with Twitter
+            Log in
           </Button>
         )}
       </StyledPaper>

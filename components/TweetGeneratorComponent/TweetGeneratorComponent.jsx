@@ -1,18 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { 
-  Box, 
-  Button, 
-  Typography,
-  CircularProgress,
-  Paper,
-  Snackbar,
-  Stack,
-  TextField
-} from '@mui/material';
-import { AutoAwesome as AutoAwesomeIcon, Send as SendIcon } from '@mui/icons-material';
 import TweetCriteriaForm from '../TweetCriteriaForm/TweetCriteriaForm';
+import styles from './TweetGeneratorComponent.module.scss';
 
-const TweetGeneratorComponent = ({ onSchedulerStatusChange }) => {
+const TweetGeneratorComponent = ({ onSchedulerStatusChange, onTweetsScheduled, showMessage }) => {
   const [criteria, setCriteria] = useState({
     topic: '',
     tone: 'professional',
@@ -28,7 +18,6 @@ const TweetGeneratorComponent = ({ onSchedulerStatusChange }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleCriteriaChange = useCallback((newCriteria) => {
     setCriteria(prevCriteria => ({
@@ -36,10 +25,6 @@ const TweetGeneratorComponent = ({ onSchedulerStatusChange }) => {
       ...newCriteria
     }));
   }, []);
-
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
-  };
 
   const generateTweets = async () => {
     setIsGenerating(true);
@@ -62,8 +47,7 @@ const TweetGeneratorComponent = ({ onSchedulerStatusChange }) => {
       const data = await response.json();
       const formattedTweets = data.tweets.map(tweet => `"${tweet.content.replace(/^"|"$/g, '')}"`).join('\n\n');
       setGeneratedTweets(formattedTweets);
-      setMessage('Tweets generated successfully!');
-      setOpenSnackbar(true);
+      showMessage('Tweets generated successfully!');
     } catch (error) {
       console.error('Error generating tweets:', error);
       setError('Error generating tweets. Please try again.');
@@ -107,102 +91,52 @@ const TweetGeneratorComponent = ({ onSchedulerStatusChange }) => {
         throw new Error(errorData.error || 'Failed to schedule tweets');
       }
 
-      setMessage('Tweets scheduled successfully!');
-      setOpenSnackbar(true);
+      showMessage('Tweets scheduled successfully!');
       onSchedulerStatusChange(true, null);
+      onTweetsScheduled(tweetsArray.map(content => ({ content })));
     } catch (error) {
       console.error('Error scheduling tweets:', error);
       setError(error.message || 'Error scheduling tweets. Please try again.');
     }
   };
 
-  const isIntervalValid = criteria.intervalDays > 0 || criteria.intervalHours > 0 || 
-                        criteria.intervalMinutes > 0 || criteria.intervalSeconds > 0;
-
   return (
-    <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-      <Typography variant="h5" sx={{ mb: 3 }}>
-        AI Tweet Generator and Scheduler
-      </Typography>
-      
+    <div className={styles.tweetGenerator}>
+      <h2>AI Tweet Generator and Scheduler</h2>
       <TweetCriteriaForm onCriteriaChange={handleCriteriaChange} />
-      
-      <Button
-        fullWidth
-        variant="contained"
-        onClick={generateTweets}
-        disabled={isGenerating}
-        startIcon={isGenerating ? <CircularProgress size={20} color="inherit" /> : <AutoAwesomeIcon />}
-        sx={{ mt: 2, mb: 2 }}
-      >
+      <button onClick={generateTweets} disabled={isGenerating}>
         {isGenerating ? 'Generating...' : 'Generate Tweets'}
-      </Button>
-
+      </button>
       {generatedTweets && (
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="h6" gutterBottom>Generated Tweets</Typography>
-          <TextField
-            fullWidth
-            multiline
-            minRows={5}
-            maxRows={15}
+        <div className={styles.generatedTweets}>
+          <h3>Generated Tweets</h3>
+          <textarea
             value={generatedTweets}
             onChange={(e) => setGeneratedTweets(e.target.value)}
-            sx={{
-              mb: 2,
-              whiteSpace: 'pre-wrap',
-              '& .MuiInputBase-root': {
-                maxHeight: '400px',
-                overflowY: 'auto',
-              },
-            }}
-            InputProps={{
-              style: { fontFamily: 'monospace' }
-            }}
+            rows={10}
           />
-          <Typography variant="h6" gutterBottom>Scheduling Information</Typography>
-          <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-            {['Days', 'Hours', 'Minutes', 'Seconds'].map((unit) => (
-              <TextField
-                key={unit}
-                type="number"
-                label={unit}
-                value={criteria[`interval${unit}`]}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setCriteria(prev => ({ ...prev, [`interval${unit}`]: value }));
-                }}
-                error={!isIntervalValid && parseInt(criteria[`interval${unit}`]) === 0}
-                helperText={!isIntervalValid && parseInt(criteria[`interval${unit}`]) === 0 ? "At least one interval must be non-zero" : ""}
-                InputProps={{ inputProps: { min: 0 } }}
-              />
-            ))}
-          </Stack>
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={handleScheduleTweets}
-            startIcon={<SendIcon />}
-            sx={{ mt: 2 }}
-          >
-            Schedule This List
-          </Button>
-        </Box>
+          <div className={styles.schedulingInfo}>
+            <h3>Scheduling Information</h3>
+            <div className={styles.intervalInputs}>
+              {['Days', 'Hours', 'Minutes', 'Seconds'].map((unit) => (
+                <div key={unit} className={styles.intervalInput}>
+                  <label>{unit}</label>
+                  <input
+                    type="number"
+                    value={criteria[`interval${unit}`]}
+                    onChange={(e) => handleCriteriaChange({ [`interval${unit}`]: e.target.value })}
+                    min="0"
+                  />
+                </div>
+              ))}
+            </div>
+            <button onClick={handleScheduleTweets}>Schedule This List</button>
+          </div>
+        </div>
       )}
-
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        message={message}
-      />
-
-      {error && (
-        <Typography color="error" sx={{ mt: 2 }}>
-          {error}
-        </Typography>
-      )}
-    </Paper>
+      {error && <p className={`${styles.message} ${styles.error}`}>{error}</p>}
+      {message && <p className={`${styles.message} ${styles.success}`}>{message}</p>}
+    </div>
   );
 };
 

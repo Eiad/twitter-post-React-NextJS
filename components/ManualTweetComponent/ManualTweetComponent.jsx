@@ -4,23 +4,20 @@ import {
   Button, 
   TextField, 
   Typography, 
-  Snackbar,
   Paper
 } from '@mui/material';
 import { Send as SendIcon } from '@mui/icons-material';
+import { toast } from 'react-toastify';
 
-const ManualTweetComponent = () => {
+const ManualTweetComponent = ({ showMessage }) => {
   const [tweet, setTweet] = useState('');
-  const [message, setMessage] = useState('');
-  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handlePostTweet = async (e) => {
     e.preventDefault();
     const accessToken = localStorage.getItem('access_token');
     
     if (!accessToken) {
-      setMessage('You must log in first.');
-      setOpenSnackbar(true);
+      showMessage('You must log in first.');
       return;
     }
 
@@ -38,18 +35,12 @@ const ManualTweetComponent = () => {
         throw new Error('Failed to post tweet');
       }
 
-      setMessage('Tweet posted successfully!');
-      setOpenSnackbar(true);
+      showMessage('Tweet posted successfully!');
       setTweet('');
     } catch (error) {
       console.error('Error posting tweet:', error);
-      setMessage('Error posting tweet.');
-      setOpenSnackbar(true);
+      showMessage('Error posting tweet.');
     }
-  };
-
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
   };
 
   return (
@@ -78,15 +69,8 @@ const ManualTweetComponent = () => {
           Post Tweet
         </Button>
       </Box>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        message={message}
-      />
     </Paper>
   );
 };
 
 export default ManualTweetComponent;
-
