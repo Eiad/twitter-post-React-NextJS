@@ -2,6 +2,7 @@ import React from 'react';
 import { Container } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import PostTweetComponent from '../components/PostTweetComponent/PostTweetComponent';
+import SchedulerControl from '../components/SchedulerControl/SchedulerControl';
 
 const theme = createTheme({
   palette: {
@@ -25,6 +26,7 @@ const PostTweet = () => {
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="md">
         <PostTweetComponent />
+        <SchedulerControl />
       </Container>
     </ThemeProvider>
   );

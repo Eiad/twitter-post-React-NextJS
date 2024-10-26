@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 import { 
   Box, 
   Typography, 
-  TextField, 
-  Button, 
   Paper, 
+  Button,
   Avatar, 
   Snackbar,
   IconButton
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Twitter as TwitterIcon, Send as SendIcon, Close as CloseIcon } from '@mui/icons-material';
+import { Twitter as TwitterIcon, Close as CloseIcon } from '@mui/icons-material';
 import TweetGeneratorComponent from '../TweetGeneratorComponent/TweetGeneratorComponent';
+import ManualTweetComponent from '../ManualTweetComponent/ManualTweetComponent';
+import SchedulerControl from '../SchedulerControl/SchedulerControl';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(6),
@@ -29,10 +29,11 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 }));
 
 const PostTweetComponent = () => {
-  const [tweet, setTweet] = useState('');
   const [message, setMessage] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [isSchedulerRunning, setIsSchedulerRunning] = useState(false);
+  const [lastTweet, setLastTweet] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -52,36 +53,6 @@ const PostTweetComponent = () => {
     }
   }, []);
 
-  const handlePostTweet = async (e) => {
-    e.preventDefault();
-    const accessToken = localStorage.getItem('access_token');
-    
-    if (!accessToken) {
-      setMessage('You must log in first.');
-      setOpenSnackbar(true);
-      return;
-    }
-
-    try {
-      await axios.post('http://127.0.0.1:5000/tweet', {
-        tweet,
-      }, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      setMessage('Tweet posted successfully!');
-      setOpenSnackbar(true);
-      setTweet('');
-    } catch (error) {
-      console.error('Error posting tweet:', error);
-      setMessage('Error posting tweet.');
-      setOpenSnackbar(true);
-    }
-  };
-
   const handleLogin = () => {
     router.push('/auth');
   };
@@ -93,8 +64,9 @@ const PostTweetComponent = () => {
     setOpenSnackbar(false);
   };
 
-  const handleTweetGenerated = (generatedTweet) => {
-    setTweet(generatedTweet);
+  const handleSchedulerStatusChange = (status, lastTweetTime) => {
+    setIsSchedulerRunning(status);
+    setLastTweet(lastTweetTime);
   };
 
   return (
@@ -115,49 +87,17 @@ const PostTweetComponent = () => {
           Tweet Your Thoughts
         </Typography>
         {isLoggedIn ? (
-          <Box component="form" onSubmit={handlePostTweet} noValidate sx={{ mt: 1, width: '100%' }}>
-            <TweetGeneratorComponent onTweetGenerated={handleTweetGenerated} />
-            <TextField
-              fullWidth
-              multiline
-              rows={5}
-              variant="outlined"
-              placeholder="What's happening?"
-              value={tweet}
-              onChange={(e) => setTweet(e.target.value)}
-              sx={{ 
-                mb: 3,
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: 'primary.light',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: 'primary.main',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'secondary.main',
-                  },
-                },
-              }}
+          <Box sx={{ width: '100%' }}>
+            <TweetGeneratorComponent 
+              isSchedulerRunning={isSchedulerRunning}
+              onSchedulerStatusChange={handleSchedulerStatusChange}
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              endIcon={<SendIcon />}
-              sx={{ 
-                mt: 3, 
-                mb: 2, 
-                py: 2, 
-                fontSize: '14px',
-                backgroundColor: 'secondary.main',
-                '&:hover': {
-                  backgroundColor: 'secondary.dark',
-                },
-              }}
-            >
-              Post Tweet
-            </Button>
+            <ManualTweetComponent />
+            <SchedulerControl 
+              isSchedulerRunning={isSchedulerRunning}
+              lastTweet={lastTweet}
+              onSchedulerStatusChange={handleSchedulerStatusChange}
+            />
           </Box>
         ) : (
           <Button
