@@ -6,6 +6,7 @@
 .pnp.js
 .yarn/install-state.gz
 
+
 # testing
 /coverage
 
@@ -27,6 +28,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -36,3 +38,6 @@ yarn-error.log*
 next-env.d.ts
 
 .vscode
+
+# Add package-lock.json to ignored files
+package-lock.json
