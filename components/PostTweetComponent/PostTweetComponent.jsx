@@ -64,8 +64,8 @@ const PostTweetComponent = () => {
     setOpenSnackbar(false);
   };
 
-  const handleSchedulerStatusChange = (status, lastTweetTime) => {
-    setIsSchedulerRunning(status);
+  const handleSchedulerStatusChange = (isRunning, lastTweetTime) => {
+    setIsSchedulerRunning(isRunning);
     setLastTweet(lastTweetTime);
   };
 
@@ -88,10 +88,7 @@ const PostTweetComponent = () => {
         </Typography>
         {isLoggedIn ? (
           <Box sx={{ width: '100%' }}>
-            <TweetGeneratorComponent 
-              isSchedulerRunning={isSchedulerRunning}
-              onSchedulerStatusChange={handleSchedulerStatusChange}
-            />
+            <TweetGeneratorComponent onSchedulerStatusChange={handleSchedulerStatusChange} />
             <ManualTweetComponent />
             <SchedulerControl 
               isSchedulerRunning={isSchedulerRunning}

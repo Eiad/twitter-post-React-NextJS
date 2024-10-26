@@ -19,10 +19,10 @@ const TweetGeneratorComponent = ({ onSchedulerStatusChange }) => {
     industry: 'technology',
     length: 200,
     numberOfTweets: 2,
-    intervalDays: 0,
-    intervalHours: 0,
-    intervalMinutes: 10,
-    intervalSeconds: 0
+    intervalDays: '0',
+    intervalHours: '0',
+    intervalMinutes: '10',
+    intervalSeconds: '0'
   });
   const [generatedTweets, setGeneratedTweets] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -31,7 +31,10 @@ const TweetGeneratorComponent = ({ onSchedulerStatusChange }) => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleCriteriaChange = useCallback((newCriteria) => {
-    setCriteria(newCriteria);
+    setCriteria(prevCriteria => ({
+      ...prevCriteria,
+      ...newCriteria
+    }));
   }, []);
 
   const handleCloseSnackbar = () => {
@@ -166,11 +169,11 @@ const TweetGeneratorComponent = ({ onSchedulerStatusChange }) => {
                 label={unit}
                 value={criteria[`interval${unit}`]}
                 onChange={(e) => {
-                  const value = parseInt(e.target.value) || 0;
-                  setCriteria({ ...criteria, [`interval${unit}`]: value });
+                  const value = e.target.value;
+                  setCriteria(prev => ({ ...prev, [`interval${unit}`]: value }));
                 }}
-                error={!isIntervalValid && criteria[`interval${unit}`] === 0}
-                helperText={!isIntervalValid && criteria[`interval${unit}`] === 0 ? "At least one interval must be non-zero" : ""}
+                error={!isIntervalValid && parseInt(criteria[`interval${unit}`]) === 0}
+                helperText={!isIntervalValid && parseInt(criteria[`interval${unit}`]) === 0 ? "At least one interval must be non-zero" : ""}
                 InputProps={{ inputProps: { min: 0 } }}
               />
             ))}
