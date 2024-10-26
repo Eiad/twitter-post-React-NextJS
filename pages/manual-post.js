@@ -1,17 +1,17 @@
 import React from 'react';
 import { Container } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
-import PostTweetComponent from '../components/PostTweetComponent/PostTweetComponent';
+import ManualTweetComponent from '../components/ManualTweetComponent/ManualTweetComponent';
 import theme from '../styles/theme';
 
-const PostTweet = () => {
+const ManualPost = () => {
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="md">
-        <PostTweetComponent />
+        <ManualTweetComponent />
       </Container>
     </ThemeProvider>
   );
 };
 
-export default PostTweet;
+export default ManualPost;

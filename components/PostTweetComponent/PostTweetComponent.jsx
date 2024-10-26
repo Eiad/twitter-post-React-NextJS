@@ -12,7 +12,6 @@ import {
 import { styled } from '@mui/material/styles';
 import { Twitter as TwitterIcon, Close as CloseIcon } from '@mui/icons-material';
 import TweetGeneratorComponent from '../TweetGeneratorComponent/TweetGeneratorComponent';
-import ManualTweetComponent from '../ManualTweetComponent/ManualTweetComponent';
 import SchedulerControl from '../SchedulerControl/SchedulerControl';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -84,12 +83,11 @@ const PostTweetComponent = () => {
             fontSize: '24px' 
           }}
         >
-          Tweet Your Thoughts
+          Schedule Your Tweets
         </Typography>
         {isLoggedIn ? (
           <Box sx={{ width: '100%' }}>
             <TweetGeneratorComponent onSchedulerStatusChange={handleSchedulerStatusChange} />
-            <ManualTweetComponent />
             <SchedulerControl 
               isSchedulerRunning={isSchedulerRunning}
               lastTweet={lastTweet}
